@@ -63,14 +63,13 @@ impl Url {
         request += format!("Host: {}\r\n", self.host).as_str();
         request += "\r\n";
         s.send(request.as_bytes()).unwrap(); // UTF-8 encoding
-        let mut buf: [MaybeUninit<u8>; 4096] = unsafe { MaybeUninit::uninit().assume_init() }; // Oookay?
+        let mut buf = [MaybeUninit::<u8>::uninit(); 1024]; // Uninitialized buffer wrapped in MaybeUninit<u8>
         loop {
             let bytes = s.recv(&mut buf).unwrap();
             if bytes == 0 {
                 break;
             }
-            let initialized_bytes =
-                unsafe { std::mem::transmute::<&[MaybeUninit<u8>], &[u8]>(&buf[..bytes]) }; // Yep
+            let initialized_bytes = unsafe { std::slice::from_raw_parts(buf.as_ptr() as *const u8, bytes) };
             print!("{}", String::from_utf8_lossy(initialized_bytes));
         }
     }
