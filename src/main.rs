@@ -4,5 +4,5 @@ use crate::url::*;
 
 fn main() {
     let url = Url::new(HOMEPAGE);
-    print!("{:#?}", { url })
+    url.request();
 }
